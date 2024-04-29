@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, MutableRefObject } from 'react'
-// import { InputMask } from 'primereact/inputmask'
+import { InputMask } from 'primereact/inputmask'
 // import { InputText } from 'primereact/inputtext'
-import InputMask from 'react-input-mask'
+// import InputMask from 'react-input-mask'
 import styled from 'styled-components'
 import { TextField } from '@mui/material'
 import axios from 'axios'
@@ -13,9 +13,9 @@ function Popup() {
     setModalStatus(false)
 
     // popup.attributeStyleMap.set('opacity', '0')
-    setTimeout(() => {
-      // popup.attributeStyleMap.set('display', 'none')
-    }, 2000)
+    // setTimeout(() => {
+    // popup.attributeStyleMap.set('display', 'none')
+    // }, 2000)
   }
 
   useEffect(() => {
@@ -23,13 +23,13 @@ function Popup() {
     const crumbs = document.querySelector('div#crumbs')
     const secondCrumb = crumbs?.children[1].children[0]
 
-    // if (secondCrumb?.children[0]?.textContent?.includes(homePageCrumb)) {
-    setTimeout(() => {
-      setModalStatus(true)
-    }, 1000)
-    const container = PopupContainer
-    // container.attributeStyleMap.set("opacity", "1");
-    // }
+    if (secondCrumb?.children[0]?.textContent?.includes(homePageCrumb)) {
+      setTimeout(() => {
+        setModalStatus(true)
+      }, 5000)
+      // const container = PopupContainer
+      // container.attributeStyleMap.set("opacity", "1");
+    }
   }, [])
 
   if (!showModal) {
@@ -68,7 +68,7 @@ function Popup() {
                 Fill in the form to get a discount code for our products.
               </span>
 
-              <PopupForm />
+              <PopupForm onClosePopUp={onClosePopUp} />
             </ContentContainer>
           </RightSideCocntent>
         </HomePagePopupContent>
@@ -77,7 +77,7 @@ function Popup() {
   )
 }
 
-const PopupForm = () => {
+const PopupForm = ({ onClosePopUp }: { onClosePopUp: () => void }) => {
   const [name, setName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -87,7 +87,6 @@ const PopupForm = () => {
   const url = 'https://sanketing-api.etrans.solutions/Request'
 
   const closeModal = async () => {
-    axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
     await axios
       .post(
         url,
@@ -96,21 +95,21 @@ const PopupForm = () => {
           lastNames: lastName,
           email: email,
           phone: phone,
-          comment: comment,
+          comments: comment,
+          createdDate: new Date(),
+          remoteIp: '',
+          country: '',
         },
         {
           headers: {
-            //   'Access-Control-Allow-Origin': '*',
-            //   'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
             Accept: 'application/json',
-            'Cache-Control': 'no-cache',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Access-Control-Allow-Origin': '*',
           },
         }
       )
       .then(function (response) {
         console.log(response)
+        onClosePopUp()
       })
       .catch(function (error) {
         console.log(error)
@@ -118,7 +117,6 @@ const PopupForm = () => {
   }
 
   const onSubmit = (e: any) => {
-    console.log(name, lastName, email, phone, comment)
     closeModal()
   }
 
@@ -170,8 +168,20 @@ const PopupForm = () => {
 
           <InputContainer>
             <label>Phone number: </label>
+            {/* <InputMask mask="+9(999)999-9999">
+              {() => (
+                <TextField
+                  // ref="phone"
+                  name="phone"
+                  type="text"
+                  size="small"
+                  fullWidth
+                  value={phone}
+                  onChange={(e: any) => setPhone(e.target.value ?? '')}
+                />
+              )}
+            </InputMask> */}
             <TextField
-              // ref="phone"
               name="phone"
               type="text"
               size="small"
@@ -181,15 +191,6 @@ const PopupForm = () => {
             >
               <InputMask mask="+9(999)999-9999" />
             </TextField>
-
-            {/* <StyledInputMask
-              id="phone"
-              name="phone"
-              tooltip="Phone"
-              mask="+9(999)999-9999"
-              value={phone}
-              onChange={(e: any) => setPhone(e.target.value ?? '')}
-            /> */}
           </InputContainer>
 
           <InputContainer>
