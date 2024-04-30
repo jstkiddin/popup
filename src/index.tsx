@@ -4,7 +4,7 @@ import Popup from './Popup'
 import reportWebVitals from './reportWebVitals'
 
 const root = ReactDOM.createRoot(
-  document.getElementById('primary') as HTMLElement
+  document.getElementById('popup-js') as HTMLElement
 )
 root.render(
   <React.StrictMode>

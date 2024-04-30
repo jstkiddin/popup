@@ -1,92 +1,45 @@
-import { useEffect, useState, useRef, MutableRefObject } from 'react'
+import {
+  useEffect,
+  useState,
+  useRef,
+  MutableRefObject,
+  Dispatch,
+  SetStateAction,
+} from 'react'
 import { InputMask } from 'primereact/inputmask'
-// import { InputText } from 'primereact/inputtext'
-// import InputMask from 'react-input-mask'
+import { Toast } from 'primereact/toast'
 import styled from 'styled-components'
-import { TextField } from '@mui/material'
+import { TextField, Box, Alert, IconButton, Collapse } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import axios from 'axios'
+
+type FormProps = {
+  name: string
+  lastName: string
+  email: string
+  phone: string
+  comment: string
+}
 
 function Popup() {
   const [showModal, setModalStatus] = useState(false)
-
-  const onClosePopUp = () => {
-    setModalStatus(false)
-
-    // popup.attributeStyleMap.set('opacity', '0')
-    // setTimeout(() => {
-    // popup.attributeStyleMap.set('display', 'none')
-    // }, 2000)
-  }
-
-  useEffect(() => {
-    const homePageCrumb = 'Home Healthcare & Medical Supplies'
-    const crumbs = document.querySelector('div#crumbs')
-    const secondCrumb = crumbs?.children[1].children[0]
-
-    if (secondCrumb?.children[0]?.textContent?.includes(homePageCrumb)) {
-      setTimeout(() => {
-        setModalStatus(true)
-      }, 5000)
-      // const container = PopupContainer
-      // container.attributeStyleMap.set("opacity", "1");
-    }
-  }, [])
-
-  if (!showModal) {
-    return <div></div>
-  }
-
-  return (
-    <PopupContainer>
-      <HomePagePopup>
-        <HomePagePopupContent>
-          <LeftSideCocntent>
-            <img
-              src="https://lh4.googleusercontent.com/x3PRkuZ7hjLqtMFny-WRD5gUtiXGjEBZaI9UgVcTbmiB6-YGT8VIh8hniLHDwpx965sB3mUTfPMbdYqSrqIkMKbR1Yl1JP5Rcc5LU8kV_eKcqGP4sqBVJwkGKl9TZ4i2pg=w200"
-              alt="starkmedicalsupplies"
-            />
-          </LeftSideCocntent>
-          <RightSideCocntent>
-            <PopupHeader className="popup-header">
-              <Button id="close-button" onClick={onClosePopUp}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="14"
-                  width="10.5"
-                  viewBox="0 0 384 512"
-                >
-                  <path
-                    fill="#000000"
-                    d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"
-                  />
-                </svg>
-              </Button>
-            </PopupHeader>
-            <ContentContainer className="wp-content">
-              <PopupHeadline>Get your 15% discount</PopupHeadline>
-              <span>
-                Fill in the form to get a discount code for our products.
-              </span>
-
-              <PopupForm onClosePopUp={onClosePopUp} />
-            </ContentContainer>
-          </RightSideCocntent>
-        </HomePagePopupContent>
-      </HomePagePopup>
-    </PopupContainer>
-  )
-}
-
-const PopupForm = ({ onClosePopUp }: { onClosePopUp: () => void }) => {
-  const [name, setName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [comment, setComment] = useState('')
+  const [status, setStatus] = useState<'success' | 'error'>('success')
+  const [message, setMessage] = useState<string>('')
+  const [open, setOpen] = useState(false)
 
   const url = 'https://sanketing-api.etrans.solutions/Request'
 
-  const closeModal = async () => {
+  const onClose = () => {
+    setModalStatus(false)
+  }
+
+  const onClosePopUp = async ({
+    name,
+    lastName,
+    email,
+    phone,
+    comment,
+  }: FormProps) => {
     await axios
       .post(
         url,
@@ -108,16 +61,127 @@ const PopupForm = ({ onClosePopUp }: { onClosePopUp: () => void }) => {
         }
       )
       .then(function (response) {
+        if (response.status === 200) {
+          setStatus('success')
+          setMessage('Your request was succsessfuly sent.')
+        } else {
+          setStatus('error')
+          setMessage('Something went wrong.')
+        }
+        setOpen(true)
         console.log(response)
-        onClosePopUp()
+        console.log('click')
       })
       .catch(function (error) {
+        setStatus('error')
+        setMessage('Something went wrong.')
+        setOpen(true)
         console.log(error)
       })
   }
 
+  useEffect(() => {
+    const homePageCrumb = 'Home Healthcare & Medical Supplies'
+    const crumbs = document.querySelector('div#crumbs')
+    const secondCrumb = crumbs?.children[1].children[0]
+    // if (secondCrumb?.children[0]?.textContent?.includes(homePageCrumb)) {
+    // setTimeout(() => {
+    setModalStatus(true)
+    // }, 5000)
+    // const container = PopupContainer
+    // container.attributeStyleMap.set("opacity", "1");
+    // }
+  }, [])
+
+  if (!showModal) {
+    return (
+      <div>
+        {open ?? (
+          <TransitionAlerts
+            open={true}
+            setOpen={setOpen}
+            status={status ?? 'success'}
+            message={message}
+          />
+        )}
+      </div>
+    )
+  }
+  if (open) {
+    return (
+      <TransitionAlerts
+        open={true}
+        setOpen={setOpen}
+        status={status ?? 'success'}
+        message={message}
+      />
+    )
+  }
+
+  return (
+    <>
+      <PopupContainer>
+        <HomePagePopup>
+          <HomePagePopupContent>
+            <LeftSideCocntent>
+              <img
+                src="https://lh4.googleusercontent.com/x3PRkuZ7hjLqtMFny-WRD5gUtiXGjEBZaI9UgVcTbmiB6-YGT8VIh8hniLHDwpx965sB3mUTfPMbdYqSrqIkMKbR1Yl1JP5Rcc5LU8kV_eKcqGP4sqBVJwkGKl9TZ4i2pg=w200"
+                alt="starkmedicalsupplies"
+              />
+            </LeftSideCocntent>
+            <RightSideCocntent>
+              <PopupHeader className="popup-header">
+                <Button id="close-button" onClick={onClose}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="14"
+                    width="10.5"
+                    viewBox="0 0 384 512"
+                  >
+                    <path
+                      fill="#000000"
+                      d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"
+                    />
+                  </svg>
+                </Button>
+              </PopupHeader>
+              <ContentContainer className="wp-content">
+                <PopupHeadline>Get your 15% discount</PopupHeadline>
+                <span>
+                  Fill in the form to get a discount code for our products.
+                </span>
+
+                <PopupForm onClosePopUp={onClosePopUp} />
+              </ContentContainer>
+            </RightSideCocntent>
+          </HomePagePopupContent>
+        </HomePagePopup>
+      </PopupContainer>
+      {open ?? (
+        <TransitionAlerts
+          open={open}
+          setOpen={setOpen}
+          status={status ?? 'success'}
+          message={message}
+        />
+      )}
+    </>
+  )
+}
+
+const PopupForm = ({
+  onClosePopUp,
+}: {
+  onClosePopUp: ({ name, lastName, email, phone, comment }: FormProps) => void
+}) => {
+  const [name, setName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [comment, setComment] = useState('')
+
   const onSubmit = (e: any) => {
-    closeModal()
+    onClosePopUp({ name, lastName, email, phone, comment })
   }
 
   return (
@@ -168,29 +232,14 @@ const PopupForm = ({ onClosePopUp }: { onClosePopUp: () => void }) => {
 
           <InputContainer>
             <label>Phone number: </label>
-            {/* <InputMask mask="+9(999)999-9999">
-              {() => (
-                <TextField
-                  // ref="phone"
-                  name="phone"
-                  type="text"
-                  size="small"
-                  fullWidth
-                  value={phone}
-                  onChange={(e: any) => setPhone(e.target.value ?? '')}
-                />
-              )}
-            </InputMask> */}
-            <TextField
+            <StyledInputMask
               name="phone"
               type="text"
-              size="small"
-              fullWidth
+              placeholder="Enter your phone number"
+              mask="+9(999)999-9999"
               value={phone}
               onChange={(e: any) => setPhone(e.target.value ?? '')}
-            >
-              <InputMask mask="+9(999)999-9999" />
-            </TextField>
+            />
           </InputContainer>
 
           <InputContainer>
@@ -217,6 +266,43 @@ const PopupForm = ({ onClosePopUp }: { onClosePopUp: () => void }) => {
         </FormBlock>
       </form>
     </FormContainer>
+  )
+}
+
+const TransitionAlerts = ({
+  open,
+  setOpen,
+  status,
+  message,
+}: {
+  open: boolean
+  setOpen: Dispatch<SetStateAction<boolean>>
+  status: 'success' | 'error'
+  message?: string
+}) => {
+  return (
+    <Notification>
+      <Collapse in={open}>
+        <Alert
+          severity={status ?? 'success'}
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setOpen(false)
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
+        >
+          {message}
+        </Alert>
+      </Collapse>
+    </Notification>
   )
 }
 
@@ -296,16 +382,17 @@ const StyledInputText = styled(TextField)`
   width: 80%;
   font-size: 1.2rem;
 `
-const StyledInputMask = styled(InputMask)`
-  width: 80%;
-  font-size: 1.2rem;
-`
 const Submit = styled(Button)`
   background-color: #000062;
   border-radius: 2px;
   color: #fff;
-  display: block;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   width: 80%;
+
   padding: 10px;
   font-size: 16px;
   font-family: inherit;
@@ -361,5 +448,34 @@ const HomePagePopup = styled(PopupElement)`
 `
 
 const ContentContainer = styled.div``
+
+const StyledInputMask = styled(InputMask)`
+  width: 100%;
+  height: 40px;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #b3b3b3;
+  padding-left: 1rem;
+  color: ##b3b3b3;
+
+  &.p-inputtext:hover {
+    border: 1px solid #000000;
+  }
+
+  &.p-inputtext:focus {
+    outline: 0;
+    outline-offset: 0;
+    box-shadow: 0 0 0 0.05rem #3b82f6;
+    border-color: #3b82f6;
+    color: #000000;
+  }
+`
+
+const Notification = styled(Box)`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 100000;
+`
 
 export default Popup
