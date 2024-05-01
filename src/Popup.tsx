@@ -67,7 +67,7 @@ function Popup() {
           setStatus('error')
           setMessage('Something went wrong.')
         }
-        setModalStatus(true)
+        setModalStatus(false)
         setOpen(true)
         console.log(response)
         console.log('click')
@@ -75,7 +75,7 @@ function Popup() {
       .catch(function (error) {
         setStatus('error')
         setMessage('Something went wrong.')
-        setModalStatus(true)
+        setModalStatus(false)
         setOpen(true)
         console.log(error)
       })
@@ -447,7 +447,7 @@ const StyledInputMask = styled(InputMask)`
 const Notification = styled(Box)`
   position: absolute;
   bottom: 0;
-  right: 10%;
+  right: 7%;
   z-index: 100000;
 `
 
