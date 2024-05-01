@@ -7,7 +7,6 @@ import {
   SetStateAction,
 } from 'react'
 import { InputMask } from 'primereact/inputmask'
-import { Toast } from 'primereact/toast'
 import styled from 'styled-components'
 import { TextField, Box, Alert, IconButton, Collapse } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
@@ -84,86 +83,64 @@ function Popup() {
     const homePageCrumb = 'Home Healthcare & Medical Supplies'
     const crumbs = document.querySelector('div#crumbs')
     const secondCrumb = crumbs?.children[1].children[0]
-    // if (secondCrumb?.children[0]?.textContent?.includes(homePageCrumb)) {
-    // setTimeout(() => {
-    setModalStatus(true)
-    // }, 5000)
-    // const container = PopupContainer
-    // container.attributeStyleMap.set("opacity", "1");
-    // }
+    if (secondCrumb?.children[0]?.textContent?.includes(homePageCrumb)) {
+      setTimeout(() => {
+        setModalStatus(true)
+      }, 5000)
+    }
   }, [])
 
-  if (!showModal) {
-    return (
-      <div>
-        {open ?? (
+  return (
+    <>
+      {showModal && (
+        <PopupContainer>
+          <HomePagePopup>
+            <HomePagePopupContent>
+              <LeftSideCocntent>
+                <img
+                  src="https://lh4.googleusercontent.com/x3PRkuZ7hjLqtMFny-WRD5gUtiXGjEBZaI9UgVcTbmiB6-YGT8VIh8hniLHDwpx965sB3mUTfPMbdYqSrqIkMKbR1Yl1JP5Rcc5LU8kV_eKcqGP4sqBVJwkGKl9TZ4i2pg=w200"
+                  alt="starkmedicalsupplies"
+                />
+              </LeftSideCocntent>
+              <RightSideCocntent>
+                <PopupHeader className="popup-header">
+                  <Button id="close-button" onClick={onClose}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      height="14"
+                      width="10.5"
+                      viewBox="0 0 384 512"
+                    >
+                      <path
+                        fill="#000000"
+                        d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"
+                      />
+                    </svg>
+                  </Button>
+                </PopupHeader>
+                <ContentContainer className="wp-content">
+                  <PopupHeadline>Get your 15% discount</PopupHeadline>
+                  <span>
+                    Fill in the form to get a discount code for our products.
+                  </span>
+
+                  <PopupForm onClosePopUp={onClosePopUp} />
+                </ContentContainer>
+              </RightSideCocntent>
+            </HomePagePopupContent>
+          </HomePagePopup>
+        </PopupContainer>
+      )}
+
+      {open && (
+        <Box sx={{ width: '100%', height: '100%' }}>
           <TransitionAlerts
-            open={true}
+            open={open}
             setOpen={setOpen}
             status={status ?? 'success'}
             message={message}
           />
-        )}
-      </div>
-    )
-  }
-  if (open) {
-    return (
-      <TransitionAlerts
-        open={true}
-        setOpen={setOpen}
-        status={status ?? 'success'}
-        message={message}
-      />
-    )
-  }
-
-  return (
-    <>
-      <PopupContainer>
-        <HomePagePopup>
-          <HomePagePopupContent>
-            <LeftSideCocntent>
-              <img
-                src="https://lh4.googleusercontent.com/x3PRkuZ7hjLqtMFny-WRD5gUtiXGjEBZaI9UgVcTbmiB6-YGT8VIh8hniLHDwpx965sB3mUTfPMbdYqSrqIkMKbR1Yl1JP5Rcc5LU8kV_eKcqGP4sqBVJwkGKl9TZ4i2pg=w200"
-                alt="starkmedicalsupplies"
-              />
-            </LeftSideCocntent>
-            <RightSideCocntent>
-              <PopupHeader className="popup-header">
-                <Button id="close-button" onClick={onClose}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    height="14"
-                    width="10.5"
-                    viewBox="0 0 384 512"
-                  >
-                    <path
-                      fill="#000000"
-                      d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"
-                    />
-                  </svg>
-                </Button>
-              </PopupHeader>
-              <ContentContainer className="wp-content">
-                <PopupHeadline>Get your 15% discount</PopupHeadline>
-                <span>
-                  Fill in the form to get a discount code for our products.
-                </span>
-
-                <PopupForm onClosePopUp={onClosePopUp} />
-              </ContentContainer>
-            </RightSideCocntent>
-          </HomePagePopupContent>
-        </HomePagePopup>
-      </PopupContainer>
-      {open ?? (
-        <TransitionAlerts
-          open={open}
-          setOpen={setOpen}
-          status={status ?? 'success'}
-          message={message}
-        />
+        </Box>
       )}
     </>
   )
