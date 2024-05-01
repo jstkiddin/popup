@@ -67,6 +67,7 @@ function Popup() {
           setStatus('error')
           setMessage('Something went wrong.')
         }
+        setModalStatus(true)
         setOpen(true)
         console.log(response)
         console.log('click')
@@ -74,6 +75,7 @@ function Popup() {
       .catch(function (error) {
         setStatus('error')
         setMessage('Something went wrong.')
+        setModalStatus(true)
         setOpen(true)
         console.log(error)
       })
@@ -131,17 +133,12 @@ function Popup() {
           </HomePagePopup>
         </PopupContainer>
       )}
-
-      {open && (
-        <Box sx={{ width: '100%', height: '100%' }}>
-          <TransitionAlerts
-            open={open}
-            setOpen={setOpen}
-            status={status ?? 'success'}
-            message={message}
-          />
-        </Box>
-      )}
+      <TransitionAlerts
+        open={open}
+        setOpen={setOpen}
+        status={status ?? 'success'}
+        message={message}
+      />
     </>
   )
 }
@@ -409,7 +406,6 @@ export const PopupContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  // opacity: 0;
   transition: opacity 1s ease-in-out;
 `
 
@@ -451,7 +447,7 @@ const StyledInputMask = styled(InputMask)`
 const Notification = styled(Box)`
   position: absolute;
   bottom: 0;
-  right: 0;
+  right: 10%;
   z-index: 100000;
 `
 
