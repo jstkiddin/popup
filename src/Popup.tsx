@@ -1,95 +1,143 @@
-import {
-  useEffect,
-  useState,
-  useRef,
-  MutableRefObject,
-  Dispatch,
-  SetStateAction,
-} from 'react'
+import { useEffect, useState, Dispatch, SetStateAction } from 'react'
 import { InputMask } from 'primereact/inputmask'
 import styled from 'styled-components'
 import { TextField, Box, Alert, IconButton, Collapse } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import axios from 'axios'
 
-type FormProps = {
-  name: string
-  lastName: string
-  email: string
-  phone: string
-  comment: string
+type DataProps = {
+  code: string
+  discount_type: string
+  amount: string
+  individual_use: boolean
+  exclude_sale_items: boolean
+  date_expires: string
 }
+
+type FormProps = {
+  data: DataProps
+  email: string
+}
+
+const consumerKey = 'ck_7647dd7a6fd549441b74816c0da8de6466a57e10'
+const consumerSecret = 'cs_6e181e59d08bd7e85a00417864e4ea8931c3a5bb'
+const storeUrl = 'https://starkmedicalsupplies.com' // Replace with your store URL
 
 function Popup() {
   const [showModal, setModalStatus] = useState(false)
   const [status, setStatus] = useState<'success' | 'error'>('success')
   const [message, setMessage] = useState<string>('')
   const [open, setOpen] = useState(false)
+  const [errors, setErrors] = useState({
+    email: false,
+  })
 
-  const url = 'https://sanketing-api.etrans.solutions/Request'
+  console.log(errors.email)
+
+  //check if form is valid
+  const checkForm = ({ email }: { email: string }) => {
+    if (!email.includes('@') || email == '' || email.length < 4) {
+      setErrors({ email: true })
+      return false
+    } else {
+      setErrors({ email: false })
+      return true
+    }
+  }
 
   const onClose = () => {
     setModalStatus(false)
   }
 
-  const onClosePopUp = async ({
-    name,
-    lastName,
-    email,
-    phone,
-    comment,
-  }: FormProps) => {
-    await axios
-      .post(
-        url,
-        {
-          names: name,
-          lastNames: lastName,
-          email: email,
-          phone: phone,
-          comments: comment,
-          createdDate: new Date(),
-          remoteIp: '',
-          country: '',
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-        }
-      )
-      .then(function (response) {
-        if (response.status === 200) {
+  const onClosePopUp = async ({ data, email }: FormProps) => {
+    let isValidForm = checkForm({
+      email,
+    })
+    console.log(email, isValidForm)
+
+    if (isValidForm) {
+      try {
+        const response = await axios.post(
+          `${storeUrl}/wp-json/wc/v3/coupons`,
+          data,
+          {
+            auth: {
+              username: consumerKey,
+              password: consumerSecret,
+            },
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+
+        if (response.data.id) {
           setStatus('success')
           setMessage('Your request was succsessfuly sent.')
         } else {
-          setStatus('error')
-          setMessage('Something went wrong.')
+          setMessage('Failed to create coupon')
         }
         setModalStatus(false)
         setOpen(true)
-        console.log(response)
-        console.log('click')
-      })
-      .catch(function (error) {
+      } catch (error) {
         setStatus('error')
-        setMessage('Something went wrong.')
         setModalStatus(false)
         setOpen(true)
-        console.log(error)
-      })
+        console.error(error)
+        setMessage('Error creating coupon')
+      }
+
+      // await axios
+      //   .post(
+      //     url,
+      //     {
+      //       names: name,
+      //       lastNames: lastName,
+      //       email: email,
+      //       phone: phone,
+      //       comments: comment,
+      //       createdDate: new Date(),
+      //       remoteIp: '',
+      //       country: '',
+      //     },
+      //     {
+      //       headers: {
+      //         'Content-Type': 'application/json',
+      //         Accept: 'application/json',
+      //       },
+      //     }
+      //   )
+      //   .then(function (response) {
+      //     if (response.status === 200) {
+
+      //     } else {
+      //       setStatus('error')
+      //       setMessage('Something went wrong.')
+      //     }
+      //     setModalStatus(false)
+      //     setOpen(true)
+      //     console.log(response)
+      //     console.log('click')
+      //   })
+      //   .catch(function (error) {
+      //     setStatus('error')
+      //     setMessage('Something went wrong.')
+      //     setModalStatus(false)
+      //     setOpen(true)
+      //     console.log(error)
+      //   })
+    }
   }
 
   useEffect(() => {
     const homePageCrumb = 'Home Healthcare & Medical Supplies'
     const crumbs = document.querySelector('div#crumbs')
     const secondCrumb = crumbs?.children[1].children[0]
-    if (secondCrumb?.children[0]?.textContent?.includes(homePageCrumb)) {
-      setTimeout(() => {
-        setModalStatus(true)
-      }, 5000)
-    }
+    // if (secondCrumb?.children[0]?.textContent?.includes(homePageCrumb)) {
+    setTimeout(() => {
+      setModalStatus(true)
+    }, 5000)
+    // }
   }, [])
 
   return (
@@ -99,10 +147,7 @@ function Popup() {
           <HomePagePopup>
             <HomePagePopupContent>
               <LeftSideCocntent>
-                <img
-                  src="https://lh4.googleusercontent.com/x3PRkuZ7hjLqtMFny-WRD5gUtiXGjEBZaI9UgVcTbmiB6-YGT8VIh8hniLHDwpx965sB3mUTfPMbdYqSrqIkMKbR1Yl1JP5Rcc5LU8kV_eKcqGP4sqBVJwkGKl9TZ4i2pg=w200"
-                  alt="starkmedicalsupplies"
-                />
+                <img src="public/Untitled-1.png" alt="starkmedicalsupplies" />
               </LeftSideCocntent>
               <RightSideCocntent>
                 <PopupHeader className="popup-header">
@@ -125,8 +170,7 @@ function Popup() {
                   <span>
                     Fill in the form to get a discount code for our products.
                   </span>
-
-                  <PopupForm onClosePopUp={onClosePopUp} />
+                  <CreateCoupon onClosePopUp={onClosePopUp} errors={errors} />
                 </ContentContainer>
               </RightSideCocntent>
             </HomePagePopupContent>
@@ -140,106 +184,6 @@ function Popup() {
         message={message}
       />
     </>
-  )
-}
-
-const PopupForm = ({
-  onClosePopUp,
-}: {
-  onClosePopUp: ({ name, lastName, email, phone, comment }: FormProps) => void
-}) => {
-  const [name, setName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [comment, setComment] = useState('')
-
-  const onSubmit = (e: any) => {
-    onClosePopUp({ name, lastName, email, phone, comment })
-  }
-
-  return (
-    <FormContainer>
-      <form action="" className="form" id="form">
-        <FormBlock>
-          <InputContainer>
-            <label>First Name: </label>
-            <StyledInputText
-              placeholder="Your first name"
-              id="name"
-              name="name"
-              fullWidth
-              size="small"
-              autoFocus
-              value={name}
-              onChange={(e: any) => setName(e.target.value)}
-            />
-          </InputContainer>
-
-          <InputContainer>
-            <label>Last Name: </label>
-            <StyledInputText
-              placeholder="Your last name"
-              id="lastName"
-              name="lastName"
-              size="small"
-              fullWidth
-              autoFocus
-              value={lastName}
-              onChange={(e: any) => setLastName(e.target.value)}
-            />
-          </InputContainer>
-
-          <InputContainer>
-            <label>Email: </label>
-            <StyledInputText
-              placeholder="Enter your email"
-              id="email"
-              name="email"
-              size="small"
-              autoFocus
-              fullWidth
-              value={email}
-              onChange={(e: any) => setEmail(e.target.value)}
-            />
-          </InputContainer>
-
-          <InputContainer>
-            <label>Phone number: </label>
-            <StyledInputMask
-              name="phone"
-              type="text"
-              placeholder="Enter your phone number"
-              mask="+9(999)999-9999"
-              value={phone}
-              onChange={(e: any) => setPhone(e.target.value ?? '')}
-            />
-          </InputContainer>
-
-          <InputContainer>
-            <label>Comment: </label>
-
-            <StyledInputText
-              placeholder="Leave a comment"
-              id="comment"
-              name="comment"
-              size="small"
-              multiline
-              fullWidth
-              rows={4}
-              value={comment}
-              onChange={(e: any) => setComment(e.target.value)}
-            />
-          </InputContainer>
-
-          <ButtonContainer>
-            <Submit id="button" onClick={onSubmit}>
-              Submit
-            </Submit>
-          </ButtonContainer>
-        </FormBlock>
-      </form>
-    </FormContainer>
   )
 }
 
@@ -277,6 +221,76 @@ const TransitionAlerts = ({
         </Alert>
       </Collapse>
     </Notification>
+  )
+}
+
+const CreateCoupon = ({
+  onClosePopUp,
+  errors,
+}: {
+  onClosePopUp: ({ data, email }: FormProps) => void
+  errors: { email: boolean }
+}) => {
+  const [email, setEmail] = useState('')
+  const date = new Date()
+
+  const createCoupon = async () => {
+    const generateRandomCode = (length: number) => {
+      const characters =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+      let result = ''
+      const charactersLength = characters.length
+      for (let i = 0; i < length; i++) {
+        result += characters.charAt(
+          Math.floor(Math.random() * charactersLength)
+        )
+      }
+      return result
+    }
+
+    const data = {
+      code: generateRandomCode(8),
+      discount_type: 'percent',
+      amount: '10',
+      individual_use: true,
+      exclude_sale_items: true,
+      date_expires: new Date(date.setMonth(date.getMonth() + 1))
+        .toISOString()
+        .split('T')[0],
+    }
+    console.log(email)
+    onClosePopUp({ data, email })
+  }
+
+  const onSubmit = (e: any) => {
+    createCoupon()
+  }
+
+  return (
+    <FormContainer>
+      <FormBlock>
+        <InputContainer>
+          <label>Email: </label>
+          <StyledInputText
+            required
+            error={errors.email}
+            placeholder="Enter your email"
+            id="email"
+            name="email"
+            size="small"
+            autoFocus
+            fullWidth
+            value={email}
+            onChange={(e: any) => setEmail(e.target.value)}
+          />
+        </InputContainer>
+        <ButtonContainer>
+          <Submit id="button" onClick={onSubmit}>
+            Submit
+          </Submit>
+        </ButtonContainer>
+      </FormBlock>
+    </FormContainer>
   )
 }
 
@@ -421,28 +435,6 @@ const HomePagePopup = styled(PopupElement)`
 `
 
 const ContentContainer = styled.div``
-
-const StyledInputMask = styled(InputMask)`
-  width: 100%;
-  height: 40px;
-  font-size: 1rem;
-  border-radius: 4px;
-  border: 1px solid #b3b3b3;
-  padding-left: 1rem;
-  color: ##b3b3b3;
-
-  &.p-inputtext:hover {
-    border: 1px solid #000000;
-  }
-
-  &.p-inputtext:focus {
-    outline: 0;
-    outline-offset: 0;
-    box-shadow: 0 0 0 0.05rem #3b82f6;
-    border-color: #3b82f6;
-    color: #000000;
-  }
-`
 
 const Notification = styled(Box)`
   position: absolute;
