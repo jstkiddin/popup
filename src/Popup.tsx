@@ -1,7 +1,13 @@
 import { useEffect, useState, Dispatch, SetStateAction } from 'react'
-import { InputMask } from 'primereact/inputmask'
 import styled from 'styled-components'
-import { TextField, Box, Alert, IconButton, Collapse } from '@mui/material'
+import {
+  TextField,
+  Box,
+  Alert,
+  IconButton,
+  Collapse,
+  Typography,
+} from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import axios from 'axios'
 
@@ -19,10 +25,6 @@ type FormProps = {
   email: string
 }
 
-const consumerKey = 'ck_7647dd7a6fd549441b74816c0da8de6466a57e10'
-const consumerSecret = 'cs_6e181e59d08bd7e85a00417864e4ea8931c3a5bb'
-const storeUrl = 'https://starkmedicalsupplies.com' // Replace with your store URL
-
 function Popup() {
   const [showModal, setModalStatus] = useState(false)
   const [status, setStatus] = useState<'success' | 'error'>('success')
@@ -31,8 +33,6 @@ function Popup() {
   const [errors, setErrors] = useState({
     email: false,
   })
-
-  console.log(errors.email)
 
   //check if form is valid
   const checkForm = ({ email }: { email: string }) => {
@@ -53,30 +53,29 @@ function Popup() {
     let isValidForm = checkForm({
       email,
     })
-    console.log(email, isValidForm)
 
     if (isValidForm) {
       try {
-        const response = await axios.post(
-          `${storeUrl}/wp-json/wc/v3/coupons`,
-          data,
-          {
-            auth: {
-              username: consumerKey,
-              password: consumerSecret,
-            },
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        )
+        //   const response = await axios.post(
+        //     `${storeUrl}/wp-json/wc/v3/coupons`,
+        //     data,
+        //     {
+        //       auth: {
+        //         username: consumerKey,
+        //         password: consumerSecret,
+        //       },
+        //       headers: {
+        //         'Content-Type': 'application/json',
+        //       },
+        //     }
+        //   )
 
-        if (response.data.id) {
-          setStatus('success')
-          setMessage('Your request was succsessfuly sent.')
-        } else {
-          setMessage('Failed to create coupon')
-        }
+        //   if (response.data.id) {
+        //     setStatus('success')
+        //     setMessage('Your request was succsessfuly sent.')
+        //   } else {
+        //     setMessage('Failed to create coupon')
+        //   }
         setModalStatus(false)
         setOpen(true)
       } catch (error) {
@@ -86,46 +85,6 @@ function Popup() {
         console.error(error)
         setMessage('Error creating coupon')
       }
-
-      // await axios
-      //   .post(
-      //     url,
-      //     {
-      //       names: name,
-      //       lastNames: lastName,
-      //       email: email,
-      //       phone: phone,
-      //       comments: comment,
-      //       createdDate: new Date(),
-      //       remoteIp: '',
-      //       country: '',
-      //     },
-      //     {
-      //       headers: {
-      //         'Content-Type': 'application/json',
-      //         Accept: 'application/json',
-      //       },
-      //     }
-      //   )
-      //   .then(function (response) {
-      //     if (response.status === 200) {
-
-      //     } else {
-      //       setStatus('error')
-      //       setMessage('Something went wrong.')
-      //     }
-      //     setModalStatus(false)
-      //     setOpen(true)
-      //     console.log(response)
-      //     console.log('click')
-      //   })
-      //   .catch(function (error) {
-      //     setStatus('error')
-      //     setMessage('Something went wrong.')
-      //     setModalStatus(false)
-      //     setOpen(true)
-      //     console.log(error)
-      //   })
     }
   }
 
@@ -146,10 +105,15 @@ function Popup() {
         <PopupContainer>
           <HomePagePopup>
             <HomePagePopupContent>
-              <LeftSideCocntent>
-                <img src="public/Untitled-1.png" alt="starkmedicalsupplies" />
-              </LeftSideCocntent>
-              <RightSideCocntent>
+              <LeftSideContent>
+                <ImgContainer>
+                  <img
+                    src="https://starkmedicalsupplies.com/wp-content/uploads/2024/05/Untitled-1.png"
+                    alt="starkmedicalsupplies"
+                  />
+                </ImgContainer>
+              </LeftSideContent>
+              <RightSideContent>
                 <PopupHeader className="popup-header">
                   <Button id="close-button" onClick={onClose}>
                     <svg
@@ -166,13 +130,30 @@ function Popup() {
                   </Button>
                 </PopupHeader>
                 <ContentContainer className="wp-content">
-                  <PopupHeadline>Get your 15% discount</PopupHeadline>
-                  <span>
-                    Fill in the form to get a discount code for our products.
-                  </span>
-                  <CreateCoupon onClosePopUp={onClosePopUp} errors={errors} />
+                  <PopupHeadline style={{ fontSize: '2rem' }}>
+                    Shop online and save!
+                  </PopupHeadline>
+                  <PopupHeadline
+                    style={{ fontSize: '1.3rem', marginTop: '-8px' }}
+                  >
+                    GET 15% OFF YOUR NEXT PURCHASE
+                  </PopupHeadline>
+                  <Typography
+                    style={{
+                      marginTop: '1rem',
+                      textAlign: 'center',
+                      padding: '0px 2rem',
+                    }}
+                  >
+                    Fill in the form below to enjoy a 15% discount on your next
+                    purchase.
+                  </Typography>
+                  <EmailForm onClosePopUp={onClosePopUp} errors={errors} />
+                  <BottomCallToAction>
+                    This exclusive offer is just a click away!
+                  </BottomCallToAction>
                 </ContentContainer>
-              </RightSideCocntent>
+              </RightSideContent>
             </HomePagePopupContent>
           </HomePagePopup>
         </PopupContainer>
@@ -187,6 +168,75 @@ function Popup() {
   )
 }
 
+const EmailForm = ({
+  onClosePopUp,
+  errors,
+}: {
+  onClosePopUp: ({ data, email }: FormProps) => void
+  errors: { email: boolean }
+}) => {
+  const [email, setEmail] = useState('')
+  const date = new Date()
+
+  const createCoupon = async () => {
+    const generateRandomCode = (length: number) => {
+      const characters =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+      let result = ''
+      const charactersLength = characters.length
+      for (let i = 0; i < length; i++) {
+        result += characters.charAt(
+          Math.floor(Math.random() * charactersLength)
+        )
+      }
+      return result
+    }
+
+    const data = {
+      code: generateRandomCode(8),
+      discount_type: 'percent',
+      amount: '15',
+      individual_use: true,
+      exclude_sale_items: true,
+      date_expires: new Date(date.setMonth(date.getMonth() + 1))
+        .toISOString()
+        .split('T')[0],
+    }
+    onClosePopUp({ data, email })
+  }
+
+  const onSubmit = (e: any) => {
+    createCoupon()
+  }
+
+  return (
+    <FormContainer>
+      <FormBlock>
+        <InputContainer>
+          <StyledInputText
+            required
+            error={errors.email}
+            placeholder="Enter your email"
+            id="email"
+            name="email"
+            size="small"
+            autoFocus
+            fullWidth
+            value={email}
+            onChange={(e: any) => setEmail(e.target.value)}
+          />
+        </InputContainer>
+        <ButtonContainer>
+          <Submit id="button" onClick={onSubmit}>
+            Submit
+          </Submit>
+        </ButtonContainer>
+      </FormBlock>
+    </FormContainer>
+  )
+}
+
+//bottom alert
 const TransitionAlerts = ({
   open,
   setOpen,
@@ -224,76 +274,6 @@ const TransitionAlerts = ({
   )
 }
 
-const CreateCoupon = ({
-  onClosePopUp,
-  errors,
-}: {
-  onClosePopUp: ({ data, email }: FormProps) => void
-  errors: { email: boolean }
-}) => {
-  const [email, setEmail] = useState('')
-  const date = new Date()
-
-  const createCoupon = async () => {
-    const generateRandomCode = (length: number) => {
-      const characters =
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-      let result = ''
-      const charactersLength = characters.length
-      for (let i = 0; i < length; i++) {
-        result += characters.charAt(
-          Math.floor(Math.random() * charactersLength)
-        )
-      }
-      return result
-    }
-
-    const data = {
-      code: generateRandomCode(8),
-      discount_type: 'percent',
-      amount: '10',
-      individual_use: true,
-      exclude_sale_items: true,
-      date_expires: new Date(date.setMonth(date.getMonth() + 1))
-        .toISOString()
-        .split('T')[0],
-    }
-    console.log(email)
-    onClosePopUp({ data, email })
-  }
-
-  const onSubmit = (e: any) => {
-    createCoupon()
-  }
-
-  return (
-    <FormContainer>
-      <FormBlock>
-        <InputContainer>
-          <label>Email: </label>
-          <StyledInputText
-            required
-            error={errors.email}
-            placeholder="Enter your email"
-            id="email"
-            name="email"
-            size="small"
-            autoFocus
-            fullWidth
-            value={email}
-            onChange={(e: any) => setEmail(e.target.value)}
-          />
-        </InputContainer>
-        <ButtonContainer>
-          <Submit id="button" onClick={onSubmit}>
-            Submit
-          </Submit>
-        </ButtonContainer>
-      </FormBlock>
-    </FormContainer>
-  )
-}
-
 const Button = styled.div`
   width: 30px;
   height: 30px;
@@ -324,37 +304,45 @@ export const HomePagePopupContent = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden !important;
+  border-radius: 8px;
+  background: url('https://i.postimg.cc/PrpTcjTy/cross.png');
 `
 
-export const LeftSideCocntent = styled.div`
+export const LeftSideContent = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
 
-  width: 50%;
+  position: relative;
+
+  width: 70%;
   height: 100%;
+  overflow: hidden;
+
   & img {
     height: 100%;
     width: 100%;
-    margin-left: 1rem;
     object-fit: contain;
   }
 `
 
-export const RightSideCocntent = styled.div`
+export const RightSideContent = styled.div`
   width: 100%;
   height: 100%;
-  padding: 1rem 3rem;
+  padding: 1rem 1rem;
 `
 
-const PopupHeadline = styled.h2`
+const PopupHeadline = styled(Typography)`
   text-transform: uppercase;
   color: #000062;
   text-align: center;
+  font-weight: 600 !important;
 `
 
 const ButtonContainer = styled.div`
-  width: 100%;
+  width: 20%;
+  height: 50px !important;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -362,13 +350,13 @@ const ButtonContainer = styled.div`
 const FormContainer = styled.div`
   margin-top: 1rem;
   gap: 1rem;
-  & form {
-  }
+  width: 100%;
 `
 
 const StyledInputText = styled(TextField)`
-  width: 80%;
+  width: 100%;
   font-size: 1.2rem;
+  background-color: #fff;
 `
 const Submit = styled(Button)`
   background-color: #000062;
@@ -380,6 +368,7 @@ const Submit = styled(Button)`
   align-items: center;
 
   width: 80%;
+  height: 20px;
 
   padding: 10px;
   font-size: 16px;
@@ -398,16 +387,15 @@ const InputContainer = styled.div`
   justify-content: center;
   align-items: start;
   gap: 0.25rem;
-
+  width: 100%;
   flex-direction: column;
 `
 
 const FormBlock = styled.div`
   display: flex;
-  justify-content: center;
-  flex-direction: column;
-
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
 `
 
 export const PopupContainer = styled.div`
@@ -433,14 +421,46 @@ const HomePagePopup = styled(PopupElement)`
   width: 50%;
   height: 40%;
 `
+const BottomCallToAction = styled(Typography)`
+  text-transform: uppercase;
+  margin-top: 1.5rem !important;
+`
+const ContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
 
-const ContentContainer = styled.div``
+  width: 100%;
+  height: 100%;
+`
 
 const Notification = styled(Box)`
   position: absolute;
   bottom: 0;
   right: 7%;
   z-index: 100000;
+`
+
+const TextOverBlock = styled.div`
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-align: center;
+  padding: 1.5rem;
+`
+
+const TextBlockContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+
+  height: 100%;
+  width: 100%;
+`
+const ImgContainer = styled.div`
+  margin: -10px;
 `
 
 export default Popup
