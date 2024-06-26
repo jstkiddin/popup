@@ -85,11 +85,11 @@ function Popup() {
     const homePageCrumb = 'Home Healthcare & Medical Supplies'
     const crumbs = document.querySelector('div#crumbs')
     const secondCrumb = crumbs?.children[1].children[0]
-    // if (secondCrumb?.children[0]?.textContent?.includes(homePageCrumb)) {
-    setTimeout(() => {
-      setModalStatus(true)
-    }, 5000)
-    // }
+    if (secondCrumb?.children[0]?.textContent?.includes(homePageCrumb)) {
+      setTimeout(() => {
+        setModalStatus(true)
+      }, 5000)
+    }
   }, [])
 
   return (
