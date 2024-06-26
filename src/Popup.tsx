@@ -56,26 +56,19 @@ function Popup() {
 
     if (isValidForm) {
       try {
-        //   const response = await axios.post(
-        //     `${storeUrl}/wp-json/wc/v3/coupons`,
-        //     data,
-        //     {
-        //       auth: {
-        //         username: consumerKey,
-        //         password: consumerSecret,
-        //       },
-        //       headers: {
-        //         'Content-Type': 'application/json',
-        //       },
-        //     }
-        //   )
+        const response = await axios.post(
+          // 'https://popups-server.onrender.com/generate',
+          'http://localhost:3030/generate',
+          { email },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+          }
+        )
+        console.log(response)
 
-        //   if (response.data.id) {
-        //     setStatus('success')
-        //     setMessage('Your request was succsessfuly sent.')
-        //   } else {
-        //     setMessage('Failed to create coupon')
-        //   }
         setModalStatus(false)
         setOpen(true)
       } catch (error) {
