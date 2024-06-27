@@ -67,10 +67,20 @@ function Popup() {
             },
           }
         )
-        console.log(response)
+        if (response.status === 200) {
+          setModalStatus(false)
+          setOpen(true)
+          setMessage('Discount code was sent to your email!')
 
-        setModalStatus(false)
-        setOpen(true)
+          const newItems = JSON.stringify({ isGenerated: true })
+          localStorage.setItem('coupon', newItems)
+        } else {
+          setStatus('error')
+          setModalStatus(false)
+          setOpen(true)
+          console.error('Server error')
+          setMessage('Error creating coupon')
+        }
       } catch (error) {
         setStatus('error')
         setModalStatus(false)
@@ -85,7 +95,12 @@ function Popup() {
     const homePageCrumb = 'Home Healthcare & Medical Supplies'
     const crumbs = document.querySelector('div#crumbs')
     const secondCrumb = crumbs?.children[1].children[0]
-    if (secondCrumb?.children[0]?.textContent?.includes(homePageCrumb)) {
+    const items = localStorage.getItem('coupon')
+
+    if (
+      secondCrumb?.children[0]?.textContent?.includes(homePageCrumb) &&
+      !items
+    ) {
       setTimeout(() => {
         setModalStatus(true)
       }, 5000)
